@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Vehicles{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Vehicles</h1>
+  <a class="button primary" href="/vehicles/new">Add vehicle</a>
+</div>
+{% if vehicles %}
+<table>
+  <thead>
+    <tr>
+      <th>Stock no.</th>
+      <th>Chassis no.</th>
+      <th>Make</th>
+      <th>Model</th>
+      <th>Year</th>
+      <th>Price (EUR)</th>
+      <th>Status</th>
+      <th>Client</th>
+      <th>Yard</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for vehicle in vehicles %}
+    <tr>
+      <td>{{ vehicle.stock_number }}</td>
+      <td>{{ vehicle.chassis_number }}</td>
+      <td>{{ vehicle.make }}</td>
+      <td>{{ vehicle.model }}</td>
+      <td>{{ vehicle.year }}</td>
+      <td class="number">{{ vehicle.price_text() }}</td>
+      <td><span class="status status-{{ vehicle.status | lower }}">{{ vehicle.status }}</span></td>
+      <td>{% if vehicle.client %}{{ vehicle.client.name }}{% else %}-{% endif %}</td>
+      <td>{{ vehicle.yard.name }}</td>
+      <td class="row-actions">
+        <a href="/vehicles/{{ vehicle.id }}/edit">Edit</a>
+        <a href="/vehicles/{{ vehicle.id }}/delete">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No vehicles yet.</p>
+{% endif %}
+{% endblock %}

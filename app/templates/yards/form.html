@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{% if yard_id %}Edit yard{% else %}Add yard{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if yard_id %}Edit yard{% else %}Add yard{% endif %}</h1>
+<form method="post" action="{% if yard_id %}/yards/{{ yard_id }}/edit{% else %}/yards/new{% endif %}" class="form">
+  <label for="name">Name</label>
+  <input id="name" name="name" value="{{ data.name or '' }}" maxlength="100" required>
+  {% if errors.name %}<p class="field-error">{{ errors.name }}</p>{% endif %}
+
+  <label for="location">Location</label>
+  <input id="location" name="location" value="{{ data.location or '' }}" maxlength="200" required>
+  {% if errors.location %}<p class="field-error">{{ errors.location }}</p>{% endif %}
+
+  <div class="inline-actions">
+    <button type="submit" class="button primary">Save</button>
+    <a class="button" href="/yards">Cancel</a>
+  </div>
+</form>
+{% endblock %}

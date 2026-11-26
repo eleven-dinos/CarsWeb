@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Yards{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Yards</h1>
+  <a class="button primary" href="/yards/new">Add yard</a>
+</div>
+{% if yards %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Location</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for yard in yards %}
+    <tr>
+      <td>{{ yard.name }}</td>
+      <td>{{ yard.location }}</td>
+      <td class="row-actions">
+        <a href="/yards/{{ yard.id }}/edit">Edit</a>
+        <a href="/yards/{{ yard.id }}/delete">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No yards yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+{% if error %}<p class="error-box">{{ error }}</p>{% endif %}
+<p>Are you sure you want to delete <strong>{{ item }}</strong>? This cannot be undone.</p>
+<form method="post" action="{{ action }}" class="inline-actions">
+  <button type="submit" class="button danger">Delete</button>
+  <a class="button" href="{{ cancel }}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Clients</h1>
+  <a class="button primary" href="/clients/new">Add client</a>
+</div>
+{% if clients %}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Country</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for client in clients %}
+    <tr>
+      <td>{{ client.name }}</td>
+      <td>{{ client.email }}</td>
+      <td>{{ client.country }}</td>
+      <td class="row-actions">
+        <a href="/clients/{{ client.id }}/edit">Edit</a>
+        <a href="/clients/{{ client.id }}/delete">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No clients yet.</p>
+{% endif %}
+{% endblock %}
