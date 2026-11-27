@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Users</h1>
+  <a class="button primary" href="/users/new">Add user</a>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Created (UTC)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.username }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+        {% if not user.is_enabled %}
+        Disabled
+        {% elif user.locked_until and user.locked_until > now %}
+        Locked until {{ user.locked_until.strftime("%H:%M") }}
+        {% else %}
+        Enabled
+        {% endif %}
+      </td>
+      <td>{{ user.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>
+        {% if user.id != request.state.user.id %}
+        {% if user.is_enabled %}
+        <form method="post" action="/users/{{ user.id }}/disable">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+          <button type="submit" class="button small danger">Disable</button>
+        </form>
+        {% else %}
+        <form method="post" action="/users/{{ user.id }}/enable">
+          <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+          <button type="submit" class="button small">Enable</button>
+        </form>
+        {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth import require_admin, require_login, require_staff
 from app.database import get_db
 from app.models import VEHICLE_STATUSES, Client, Vehicle, Yard
 from app.templates_setup import templates
@@ -58,20 +59,20 @@ def copy_data_to_vehicle(data, vehicle):
 
 
 @router.get("/vehicles")
-def list_vehicles(request: Request, done: str = "", db: Session = Depends(get_db)):
+def list_vehicles(request: Request, done: str = "", db: Session = Depends(get_db), current_user=Depends(require_login)):
     vehicles = db.query(Vehicle).order_by(Vehicle.stock_number).all()
     context = {"vehicles": vehicles, "message": MESSAGES.get(done)}
     return templates.TemplateResponse(request, "vehicles/list.html", context)
 
 
 @router.get("/vehicles/new")
-def new_vehicle_form(request: Request, db: Session = Depends(get_db)):
+def new_vehicle_form(request: Request, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     data = {"status": "Available"}
     return show_form(request, db, data, {})
 
 
 @router.post("/vehicles/new")
-async def create_vehicle(request: Request, db: Session = Depends(get_db)):
+async def create_vehicle(request: Request, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     form = await request.form()
     data, errors = validate_vehicle(form, db)
     if errors:
@@ -91,7 +92,7 @@ async def create_vehicle(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/vehicles/{vehicle_id}/edit")
-def edit_vehicle_form(request: Request, vehicle_id: int, db: Session = Depends(get_db)):
+def edit_vehicle_form(request: Request, vehicle_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     vehicle = get_vehicle_or_404(db, vehicle_id)
     data = {}
     data["stock_number"] = vehicle.stock_number
@@ -110,7 +111,7 @@ def edit_vehicle_form(request: Request, vehicle_id: int, db: Session = Depends(g
 
 
 @router.post("/vehicles/{vehicle_id}/edit")
-async def update_vehicle(request: Request, vehicle_id: int, db: Session = Depends(get_db)):
+async def update_vehicle(request: Request, vehicle_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     vehicle = get_vehicle_or_404(db, vehicle_id)
     form = await request.form()
     data, errors = validate_vehicle(form, db, vehicle_id=vehicle.id)
@@ -129,7 +130,7 @@ async def update_vehicle(request: Request, vehicle_id: int, db: Session = Depend
 
 
 @router.get("/vehicles/{vehicle_id}/delete")
-def delete_vehicle_page(request: Request, vehicle_id: int, db: Session = Depends(get_db)):
+def delete_vehicle_page(request: Request, vehicle_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     vehicle = get_vehicle_or_404(db, vehicle_id)
     context = {
         "title": "Delete vehicle",
@@ -141,7 +142,7 @@ def delete_vehicle_page(request: Request, vehicle_id: int, db: Session = Depends
 
 
 @router.post("/vehicles/{vehicle_id}/delete")
-def delete_vehicle(vehicle_id: int, db: Session = Depends(get_db)):
+def delete_vehicle(vehicle_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     vehicle = get_vehicle_or_404(db, vehicle_id)
     db.delete(vehicle)
     db.commit()

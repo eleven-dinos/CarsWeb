@@ -9,11 +9,25 @@
 <body>
 <header class="topbar">
   <a class="brand" href="/vehicles">CarsWeb</a>
+  {% if request.state.user %}
   <nav>
     <a href="/vehicles">Vehicles</a>
+    {% if request.state.user.role == "admin" or request.state.user.role == "staff" %}
     <a href="/clients">Clients</a>
     <a href="/yards">Yards</a>
+    {% endif %}
+    {% if request.state.user.role == "admin" %}
+    <a href="/users">Users</a>
+    {% endif %}
   </nav>
+  <div class="user-box">
+    <span>{{ request.state.user.username }} ({{ request.state.user.role }})</span>
+    <form method="post" action="/logout">
+      <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+      <button type="submit" class="button small">Log out</button>
+    </form>
+  </div>
+  {% endif %}
 </header>
 <main class="container">
   {% if message %}<p class="notice">{{ message }}</p>{% endif %}

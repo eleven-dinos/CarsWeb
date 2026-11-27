@@ -3,7 +3,9 @@
 {% block content %}
 <div class="page-head">
   <h1>Vehicles</h1>
+  {% if request.state.user.role != "guest" %}
   <a class="button primary" href="/vehicles/new">Add vehicle</a>
+  {% endif %}
 </div>
 {% if vehicles %}
 <table>
@@ -34,8 +36,12 @@
       <td>{% if vehicle.client %}{{ vehicle.client.name }}{% else %}-{% endif %}</td>
       <td>{{ vehicle.yard.name }}</td>
       <td class="row-actions">
+        {% if request.state.user.role != "guest" %}
         <a href="/vehicles/{{ vehicle.id }}/edit">Edit</a>
+        {% endif %}
+        {% if request.state.user.role == "admin" %}
         <a href="/vehicles/{{ vehicle.id }}/delete">Delete</a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

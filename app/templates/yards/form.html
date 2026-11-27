@@ -3,6 +3,8 @@
 {% block content %}
 <h1>{% if yard_id %}Edit yard{% else %}Add yard{% endif %}</h1>
 <form method="post" action="{% if yard_id %}/yards/{{ yard_id }}/edit{% else %}/yards/new{% endif %}" class="form">
+  <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+
   <label for="name">Name</label>
   <input id="name" name="name" value="{{ data.name or '' }}" maxlength="100" required>
   {% if errors.name %}<p class="field-error">{{ errors.name }}</p>{% endif %}

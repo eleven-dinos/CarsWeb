@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Add user{% endblock %}
+{% block content %}
+<h1>Add user</h1>
+<form method="post" action="/users/new" class="form">
+  <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+
+  <label for="username">Username</label>
+  <input id="username" name="username" value="{{ data.username or '' }}" maxlength="30" autocomplete="off" required>
+  {% if errors.username %}<p class="field-error">{{ errors.username }}</p>{% endif %}
+
+  <label for="role">Role</label>
+  <select id="role" name="role">
+    {% for role in roles %}
+    <option value="{{ role }}" {% if data.role == role %}selected{% endif %}>{{ role }}</option>
+    {% endfor %}
+  </select>
+  {% if errors.role %}<p class="field-error">{{ errors.role }}</p>{% endif %}
+
+  <label for="password">Password (at least 12 characters)</label>
+  <input id="password" name="password" type="password" maxlength="128" autocomplete="new-password" required>
+  {% if errors.password %}<p class="field-error">{{ errors.password }}</p>{% endif %}
+
+  <label for="confirm_password">Type the password again</label>
+  <input id="confirm_password" name="confirm_password" type="password" maxlength="128" autocomplete="new-password" required>
+
+  <div class="inline-actions">
+    <button type="submit" class="button primary">Create user</button>
+    <a class="button" href="/users">Cancel</a>
+  </div>
+</form>
+{% endblock %}

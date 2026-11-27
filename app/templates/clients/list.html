@@ -23,7 +23,9 @@
       <td>{{ client.country }}</td>
       <td class="row-actions">
         <a href="/clients/{{ client.id }}/edit">Edit</a>
+        {% if request.state.user.role == "admin" %}
         <a href="/clients/{{ client.id }}/delete">Delete</a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

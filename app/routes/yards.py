@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth import require_admin, require_staff
 from app.database import get_db
 from app.models import Vehicle, Yard
 from app.templates_setup import templates
@@ -46,19 +47,19 @@ def show_delete_page(request, yard, error=None, status_code=200):
 
 
 @router.get("/yards")
-def list_yards(request: Request, done: str = "", db: Session = Depends(get_db)):
+def list_yards(request: Request, done: str = "", db: Session = Depends(get_db), current_user=Depends(require_staff)):
     yards = db.query(Yard).order_by(Yard.name).all()
     context = {"yards": yards, "message": MESSAGES.get(done)}
     return templates.TemplateResponse(request, "yards/list.html", context)
 
 
 @router.get("/yards/new")
-def new_yard_form(request: Request):
+def new_yard_form(request: Request, current_user=Depends(require_staff)):
     return show_form(request, {}, {})
 
 
 @router.post("/yards/new")
-async def create_yard(request: Request, db: Session = Depends(get_db)):
+async def create_yard(request: Request, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     form = await request.form()
     data, errors = validate_yard(form, db)
     if errors:
@@ -77,14 +78,14 @@ async def create_yard(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/yards/{yard_id}/edit")
-def edit_yard_form(request: Request, yard_id: int, db: Session = Depends(get_db)):
+def edit_yard_form(request: Request, yard_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     yard = get_yard_or_404(db, yard_id)
     data = {"name": yard.name, "location": yard.location}
     return show_form(request, data, {}, yard_id=yard.id)
 
 
 @router.post("/yards/{yard_id}/edit")
-async def update_yard(request: Request, yard_id: int, db: Session = Depends(get_db)):
+async def update_yard(request: Request, yard_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     yard = get_yard_or_404(db, yard_id)
     form = await request.form()
     data, errors = validate_yard(form, db, yard_id=yard.id)
@@ -104,13 +105,13 @@ async def update_yard(request: Request, yard_id: int, db: Session = Depends(get_
 
 
 @router.get("/yards/{yard_id}/delete")
-def delete_yard_page(request: Request, yard_id: int, db: Session = Depends(get_db)):
+def delete_yard_page(request: Request, yard_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     yard = get_yard_or_404(db, yard_id)
     return show_delete_page(request, yard)
 
 
 @router.post("/yards/{yard_id}/delete")
-def delete_yard(request: Request, yard_id: int, db: Session = Depends(get_db)):
+def delete_yard(request: Request, yard_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     yard = get_yard_or_404(db, yard_id)
     vehicle_count = db.query(Vehicle).filter(Vehicle.yard_id == yard.id).count()
     if vehicle_count > 0:

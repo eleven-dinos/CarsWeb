@@ -5,6 +5,8 @@
 {% if errors.form %}<p class="error-box">{{ errors.form }}</p>{% endif %}
 {% if not yards %}<p class="error-box">Add a yard before adding vehicles.</p>{% endif %}
 <form method="post" action="{% if vehicle_id %}/vehicles/{{ vehicle_id }}/edit{% else %}/vehicles/new{% endif %}" class="form">
+  <input type="hidden" name="csrf_token" value="{{ request.state.csrf_token }}">
+
   <label for="stock_number">Stock number</label>
   <input id="stock_number" name="stock_number" value="{{ data.stock_number or '' }}" maxlength="20" required>
   {% if errors.stock_number %}<p class="field-error">{{ errors.stock_number }}</p>{% endif %}

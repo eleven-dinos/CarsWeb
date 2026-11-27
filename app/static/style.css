@@ -168,3 +168,17 @@ th {
 .status-sold {
   background: #e4e7eb;
 }
+
+.button.small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.login-box {
+  max-width: 400px;
+  margin: 60px auto;
+}
+
+.login-box .form {
+  max-width: none;
+}

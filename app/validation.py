@@ -178,3 +178,24 @@ def validate_vehicle(form, db, vehicle_id=None):
             errors["chassis_number"] = "This chassis number is already in use."
 
     return data, errors
+
+
+USERNAME_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789._-"
+
+
+def check_username(username):
+    if not length_ok(username, 3, 30):
+        return "Username must be between 3 and 30 characters."
+    if not only_has(username, USERNAME_CHARACTERS):
+        return "Username can only use lowercase letters, numbers, dots, underscores and hyphens."
+    return None
+
+
+def check_new_password(password, confirm, username, min_length, max_length):
+    if not length_ok(password, min_length, max_length):
+        return "Password must be between " + str(min_length) + " and " + str(max_length) + " characters."
+    if password != confirm:
+        return "The two passwords do not match."
+    if password.lower() == username.lower():
+        return "Password must not be the same as the username."
+    return None

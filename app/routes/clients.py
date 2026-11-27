@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth import require_admin, require_staff
 from app.database import get_db
 from app.models import Client, Vehicle
 from app.templates_setup import templates
@@ -45,19 +46,19 @@ def show_delete_page(request, client, error=None, status_code=200):
 
 
 @router.get("/clients")
-def list_clients(request: Request, done: str = "", db: Session = Depends(get_db)):
+def list_clients(request: Request, done: str = "", db: Session = Depends(get_db), current_user=Depends(require_staff)):
     clients = db.query(Client).order_by(Client.name).all()
     context = {"clients": clients, "message": MESSAGES.get(done)}
     return templates.TemplateResponse(request, "clients/list.html", context)
 
 
 @router.get("/clients/new")
-def new_client_form(request: Request):
+def new_client_form(request: Request, current_user=Depends(require_staff)):
     return show_form(request, {}, {})
 
 
 @router.post("/clients/new")
-async def create_client(request: Request, db: Session = Depends(get_db)):
+async def create_client(request: Request, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     form = await request.form()
     data, errors = validate_client(form)
     if errors:
@@ -70,14 +71,14 @@ async def create_client(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/clients/{client_id}/edit")
-def edit_client_form(request: Request, client_id: int, db: Session = Depends(get_db)):
+def edit_client_form(request: Request, client_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     client = get_client_or_404(db, client_id)
     data = {"name": client.name, "email": client.email, "country": client.country}
     return show_form(request, data, {}, client_id=client.id)
 
 
 @router.post("/clients/{client_id}/edit")
-async def update_client(request: Request, client_id: int, db: Session = Depends(get_db)):
+async def update_client(request: Request, client_id: int, db: Session = Depends(get_db), current_user=Depends(require_staff)):
     client = get_client_or_404(db, client_id)
     form = await request.form()
     data, errors = validate_client(form)
@@ -92,13 +93,13 @@ async def update_client(request: Request, client_id: int, db: Session = Depends(
 
 
 @router.get("/clients/{client_id}/delete")
-def delete_client_page(request: Request, client_id: int, db: Session = Depends(get_db)):
+def delete_client_page(request: Request, client_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     client = get_client_or_404(db, client_id)
     return show_delete_page(request, client)
 
 
 @router.post("/clients/{client_id}/delete")
-def delete_client(request: Request, client_id: int, db: Session = Depends(get_db)):
+def delete_client(request: Request, client_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     client = get_client_or_404(db, client_id)
     vehicle_count = db.query(Vehicle).filter(Vehicle.client_id == client.id).count()
     if vehicle_count > 0:

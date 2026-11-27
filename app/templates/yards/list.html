@@ -21,7 +21,9 @@
       <td>{{ yard.location }}</td>
       <td class="row-actions">
         <a href="/yards/{{ yard.id }}/edit">Edit</a>
+        {% if request.state.user.role == "admin" %}
         <a href="/yards/{{ yard.id }}/delete">Delete</a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
